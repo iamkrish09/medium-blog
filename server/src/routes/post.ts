@@ -49,7 +49,7 @@ postRouter.post('/', async(c) => {
     const authorId = c.get("userId");
 
     const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
+        accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
     try {
@@ -80,7 +80,7 @@ postRouter.put('/', async (c) => {
     const body = await c.req.json();
 
     const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
+        accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
     try {
@@ -111,7 +111,7 @@ postRouter.put('/', async (c) => {
 postRouter.get('/bulk', async(c) => {
 
     const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
+        accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
     const posts = await prisma.post.findMany();
@@ -127,7 +127,7 @@ postRouter.get('/:id', async(c) => {
     const id = c.req.param("id");
 
     const prisma = new PrismaClient({
-        datasourceUrl: c.env.DATABASE_URL,
+        accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
     try {
