@@ -2,50 +2,58 @@ import { Hono } from "hono";
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { PrismaClient } from '../generated/prisma/edge';
 import { verify } from "hono/jwt";
+import { createPostInput, updatePostInput } from "@krishna1505/medium-common";
 
 export const postRouter = new Hono<{
     Bindings: {
-		DATABASE_URL: string,
+        DATABASE_URL: string,
         JWT_SECRET: string
-	},
+    },
     Variables: {
         userId: string,
     }
 }>();
 
 // This is the middleware to decode the token 
-postRouter.use("/*", async(c, next) => {
+postRouter.use("/*", async (c, next) => {
     //extract the user id
     //pass it down to the route handler
-        const authHeader = c.req.header("authorization") || "";
+    const authHeader = c.req.header("authorization") || "";
 
-        try{
-            //Bearer Token
-            const token = authHeader.split(" ")[1]
+    try {
+        //Bearer Token
+        const token = authHeader.split(" ")[1]
 
-            const response = await verify(token, c.env.JWT_SECRET, "HS256")
-            // const user = await verify(authHeader, c.env.JWT_SECRET);
-            if (response.id) {
-                c.set('userId', response.id as string);
-                await next()
-            } 
-            else{
-                c.status(403)
-                return c.json({error: "unauthorized"})
-            } 
-        } catch(e){
-            c.status(403)
-            return c.json({error: "unauthorized"})
+        const response = await verify(token, c.env.JWT_SECRET, "HS256")
+        // const user = await verify(authHeader, c.env.JWT_SECRET);
+        if (response.id) {
+            c.set('userId', response.id as string);
+            await next()
         }
+        else {
+            c.status(403)
+            return c.json({ error: "unauthorized" })
+        }
+    } catch (e) {
+        c.status(403)
+        return c.json({ error: "unauthorized" })
     }
+}
 )
 
 
 
 
-postRouter.post('/', async(c) => {
+postRouter.post('/', async (c) => {
     //Get the body which the user will send me
     const body = await c.req.json();
+
+    const { success } = createPostInput.safeParse(body);
+
+    if (!success) {
+        c.status(411);
+        return c.json({ message: "Invalid Input" });
+    }
 
     const authorId = c.get("userId");
 
@@ -55,19 +63,19 @@ postRouter.post('/', async(c) => {
 
     try {
         const post = await prisma.post.create({
-        data:{
-            title: body.title,
-            content: body.content,
-            authorId: authorId,
-            //if the authorId was a number then we should have used
-            //authorId: Number(authorId)
-        }
+            data: {
+                title: body.title,
+                content: body.content,
+                authorId: authorId,
+                //if the authorId was a number then we should have used
+                //authorId: Number(authorId)
+            }
         })
 
         c.status(200);
         return c.json({
             id: post.id,
-            message: 'Post created successfully!',      
+            message: 'Post created successfully!',
         })
 
     } catch (e) {
@@ -80,25 +88,32 @@ postRouter.put('/', async (c) => {
     //Get the body which the user will send me
     const body = await c.req.json();
 
+    const { success } = updatePostInput.safeParse(body);
+
+    if (!success) {
+        c.status(411);
+        return c.json({ message: "Invalid Input" });
+    }
+
     const prisma = new PrismaClient({
         accelerateUrl: c.env.DATABASE_URL,
     }).$extends(withAccelerate());
 
     try {
         const post = await prisma.post.update({
-        where:{
-            id:body.id
-        },    
-        data:{
-            title: body.title,
-            content: body.content,
-        }
+            where: {
+                id: body.id
+            },
+            data: {
+                title: body.title,
+                content: body.content,
+            }
         })
 
         c.status(200);
         return c.json({
             id: post.id,
-            message: 'Post updated successfully!',      
+            message: 'Post updated successfully!',
         })
 
     } catch (e) {
@@ -109,7 +124,7 @@ postRouter.put('/', async (c) => {
 
 
 //You should add pagination here
-postRouter.get('/bulk', async(c) => {
+postRouter.get('/bulk', async (c) => {
 
     const prisma = new PrismaClient({
         accelerateUrl: c.env.DATABASE_URL,
@@ -118,13 +133,13 @@ postRouter.get('/bulk', async(c) => {
     const posts = await prisma.post.findMany();
 
     return c.json({
-      posts  
+        posts
     })
 })
 
 
-postRouter.get('/:id', async(c) => {
-//Get the body which the user will send me
+postRouter.get('/:id', async (c) => {
+    //Get the body which the user will send me
     const id = c.req.param("id");
 
     const prisma = new PrismaClient({
@@ -133,21 +148,21 @@ postRouter.get('/:id', async(c) => {
 
     try {
         const post = await prisma.post.findFirst({
-        where:{
-            id:id
-        },    
+            where: {
+                id: id
+            },
         })
 
         c.status(200);
         return c.json({
             post,
-            message: 'Post fetched successfully!',      
+            message: 'Post fetched successfully!',
         })
 
     } catch (e) {
         c.status(411);
         return c.json({
-            message: "error occured while fetching post"  
+            message: "error occured while fetching post"
         })
     }
 })

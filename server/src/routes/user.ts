@@ -2,15 +2,16 @@ import { Hono } from "hono";
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { PrismaClient } from '../generated/prisma/edge';
 import { sign } from 'hono/jwt';
+import { signupInput, signinInput } from "@krishna1505/medium-common";
 
 const JWT_ALGORITHM = 'HS256' as const;
 
 //Fix pass as generic
 export const userRouter = new Hono<{
-    Bindings: {
-		DATABASE_URL: string,
-        JWT_SECRET: string
-	}
+  Bindings: {
+    DATABASE_URL: string,
+    JWT_SECRET: string
+  }
 }>();
 
 //SIGN UP
@@ -23,22 +24,30 @@ userRouter.post('/signup', async (c) => {
 
   //Get the body which the user will send me
   const body = await c.req.json();
+  const { success } = signupInput.safeParse(body)
+
+  if (!success) {
+    c.status(411);
+    return c.json({
+      message: "Invalid Input"
+    })
+  }
 
   //this also checks weather a siame user exists in the db
   try {
     const user = await prisma.user.create({
-      data:{
+      data: {
         email: body.email,
         password: body.password,
-        name:body.name,
+        name: body.name,
       }
     })
 
-    const token = await sign({id: user.id}, c.env.JWT_SECRET, JWT_ALGORITHM)
+    const token = await sign({ id: user.id }, c.env.JWT_SECRET, JWT_ALGORITHM)
     c.status(200);
     return c.json({
-      jwt:token,
-      message: 'User created successfully!',      
+      jwt: token,
+      message: 'User created successfully!',
     })
 
   } catch (e) {
@@ -83,7 +92,7 @@ userRouter.post('/signup', async (c) => {
 //     }).$extends(withAccelerate());
 
 //     const body = await c.req.json();
-    
+
 //     // First find the user by email only
 //     const user = await prisma.user.findUnique({
 //       where: {
@@ -118,11 +127,20 @@ userRouter.post('/signup', async (c) => {
 userRouter.post('/signin', async (c) => {
 
   try {
+    const body = await c.req.json();
+
+    const { success } = signinInput.safeParse(body);
+
+    if (!success) {
+      c.status(411);
+      return c.json({ message: "Invalid Input" });
+    }
+
     const prisma = new PrismaClient({
       accelerateUrl: c.env?.DATABASE_URL,
     }).$extends(withAccelerate());
 
-    const body = await c.req.json();
+    // const body = await c.req.json();
 
     if (!body.email || !body.password) {
       return c.json({ error: "Email and password required" }, 400);

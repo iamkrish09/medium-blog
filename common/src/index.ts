@@ -7,16 +7,11 @@ export const signupInput = z.object({
     name:z.string().optional()
 })
 
-// NOTE: type inferencein zod (so that the frontend engineers can understand the data type)
-export type SignupInput = z.infer<typeof signupInput>
-
 //SignIn Validiation
 export const signinInput = z.object({
     email:z.email(),
     password: z.string().min(6),
 })
-
-export type SigninInput = z.infer<typeof signinInput>
 
 
 /*
@@ -35,8 +30,6 @@ export const createPostInput = z.object({
     content: z.string(),
 })
 
-export type CreatePostInput = z.infer<typeof createPostInput>
-
 //Update Blog Poste
 export const updatePostInput = z.object({
     title:z.string(),
@@ -44,4 +37,8 @@ export const updatePostInput = z.object({
     id:z.string(),
 })
 
+// NOTE: type inferencein zod (so that the frontend engineers can understand the data type)
+export type SignupInput = z.infer<typeof signupInput>
+export type SigninInput = z.infer<typeof signinInput>
+export type CreatePostInput = z.infer<typeof createPostInput>
 export type UpdatePostInput = z.infer<typeof updatePostInput>
