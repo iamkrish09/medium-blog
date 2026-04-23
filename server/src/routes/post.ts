@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { PrismaClient } from '@prisma/client/edge';
+import { PrismaClient } from '../generated/prisma/edge';
 import { verify } from "hono/jwt";
 
 export const postRouter = new Hono<{
@@ -13,6 +13,7 @@ export const postRouter = new Hono<{
     }
 }>();
 
+// This is the middleware to decode the token 
 postRouter.use("/*", async(c, next) => {
     //extract the user id
     //pass it down to the route handler
