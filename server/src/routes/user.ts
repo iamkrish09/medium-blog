@@ -1,7 +1,9 @@
 import { Hono } from "hono";
 import { withAccelerate } from '@prisma/extension-accelerate'
-import { PrismaClient } from '@prisma/client/edge';
+import { PrismaClient } from '../generated/prisma/edge';
 import { sign } from 'hono/jwt';
+
+const JWT_ALGORITHM = 'HS256' as const;
 
 //Fix pass as generic
 export const userRouter = new Hono<{
@@ -32,7 +34,7 @@ userRouter.post('/signup', async (c) => {
       }
     })
 
-    const token = await sign({id: user.id}, c.env.JWT_SECRET,)
+    const token = await sign({id: user.id}, c.env.JWT_SECRET, JWT_ALGORITHM)
     c.status(200);
     return c.json({
       jwt:token,
@@ -146,7 +148,7 @@ userRouter.post('/signin', async (c) => {
       throw new Error("JWT_SECRET is undefined");
     }
 
-    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET);
+    const jwt = await sign({ id: user.id }, c.env.JWT_SECRET, JWT_ALGORITHM);
 
     return c.json({
       jwt,

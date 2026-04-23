@@ -22,7 +22,7 @@ postRouter.use("/*", async(c, next) => {
             //Bearer Token
             const token = authHeader.split(" ")[1]
 
-            const response = await verify(token, c.env.JWT_SECRET)
+            const response = await verify(token, c.env.JWT_SECRET, "HS256")
             // const user = await verify(authHeader, c.env.JWT_SECRET);
             if (response.id) {
                 c.set('userId', response.id as string);
@@ -150,3 +150,42 @@ postRouter.get('/:id', async(c) => {
         })
     }
 })
+
+postRouter.delete('/:id', async (c) => {
+    try {
+        const id = c.req.param("id"); //post id
+
+        // Validate ID
+        if (!id) {
+            return c.json({ message: "Invalid ID" }, 400);
+        }
+
+        const prisma = new PrismaClient({
+            accelerateUrl: c.env.DATABASE_URL,
+        }).$extends(withAccelerate());
+
+        // Use deleteMany to avoid crashing if id doesn't exist
+        const result = await prisma.post.deleteMany({
+            where: { id }
+        });
+
+        if (result.count === 0) {
+            return c.json({ message: "Post not found" }, 404);
+        }
+
+        return c.json({
+            message: "Post deleted successfully"
+        });
+
+    } catch (e) {
+        console.error(e);
+
+        const message =
+            e instanceof Error ? e.message : "Unknown error";
+
+        return c.json({
+            message: "Error deleting post",
+            error: message
+        }, 500);
+    }
+});
