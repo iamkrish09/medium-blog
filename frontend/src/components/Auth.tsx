@@ -16,7 +16,7 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
     async function sendRequest(){
         try {
             const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs); // for now zod will ignore the extra name field but later i will make another seperate compoennt for both sing up and sign in currently i am using this logic 
-            const jwt = response.data;
+            const jwt = response.data.jwt;
             localStorage.setItem("token", jwt);
             navigate("/blogs")
         } catch (error) {
