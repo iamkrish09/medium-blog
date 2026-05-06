@@ -6,8 +6,11 @@ export const Appbar = () => {
             Medium
         </Link>
         <div>
-        <Link to={'/publish'}>
-            <button type="button" className="mr-4 text-white bg-green-800 box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none">New</button>
+        <Link
+          to="/publish"
+          className="mr-4 inline-flex items-center text-white bg-green-800 box-border border border-transparent hover:bg-success-strong focus:ring-4 focus:ring-success-medium shadow-xs font-medium leading-5 rounded-full text-sm px-4 py-2.5 focus:outline-none"
+        >
+          New
         </Link>
             <Avatar size={"big"} name="Krishna"/>
         </div>
