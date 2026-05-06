@@ -11,7 +11,15 @@ const app = new Hono<{
     JWT_SECRET: string
 	}
 }>();
-app.use('/*', cors());
+// app.use('/*', cors());
+app.use(
+  '/*',
+  cors({
+    origin: ['http://localhost:5173'], // replace/expand via env per deployment
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+  })
+);
 app.route("/api/v1/user", userRouter);
 app.route("/api/v1/post", postRouter);
 
