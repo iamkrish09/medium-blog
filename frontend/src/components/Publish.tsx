@@ -36,6 +36,11 @@ export const Publish = () => {
 
                     <button
                         onClick={async () => {
+                            const token = localStorage.getItem("token");
+                            if (!token) {
+                                navigate("/signin");
+                                return;
+                            }
                             setLoading(true);
                             try {
                                 const response = await axios.post(`${BACKEND_URL}/api/v1/post`, {
@@ -43,7 +48,7 @@ export const Publish = () => {
                                     content: description
                                 }, {
                                     headers: {
-                                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                                        Authorization: `Bearer ${token}`
                                     }
                                 });
                                 navigate(`/blog/${response.data.id}`);
