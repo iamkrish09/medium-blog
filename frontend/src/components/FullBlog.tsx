@@ -1,13 +1,23 @@
 import { Appbar } from "./Appbar"
 import type { Blog } from "../hooks";
 import { Avatar } from "./BlogCard";
+import { useNavigate } from "react-router-dom";
 
-export const FullBlog = ({blog}: {blog: Blog}) => {
+export const FullBlog = ({ blog }: { blog: Blog }) => {
+    const navigate = useNavigate();
+
     return <div>
-        <Appbar/>
+        <Appbar />
         <div className="flex justify-center">
             <div className="grid grid-cols-12 px-10 w-full max-w-screen-xl pt-12">
                 <div className="col-span-8">
+
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="mb-6 px-3 py-1 border border-slate-300 rounded-lg text-sm text-slate-600 hover:bg-slate-100 hover:border-slate-400"
+                    >
+                        ← Back
+                    </button>
                     <div className="text-3xl font-extrabold">
                         {blog.title}
                     </div>
@@ -25,7 +35,7 @@ export const FullBlog = ({blog}: {blog: Blog}) => {
                     </div>
                     <div className="flex">
                         <div className="pr-4 flex flex-col justify-center">
-                            <Avatar size="big" name={blog.author.name || "Anonymous"}/> 
+                            <Avatar size="big" name={blog.author.name || "Anonymous"} />
                         </div>
 
                         <div>
