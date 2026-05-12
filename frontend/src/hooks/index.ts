@@ -13,9 +13,15 @@ export interface Blog {
 }
 
 // Helper function for authorization headers
-const getAuthHeaders = () => ({
-    Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+        throw new Error("Authentication token not found");
+    }
+    return {
+        Authorization: `Bearer ${token}`,
+    };
+};
 
 export const useBlog = ({ id }: { id: string }) => {
     const {
