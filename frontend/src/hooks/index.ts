@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 
@@ -7,52 +7,64 @@ export interface Blog {
     "content": string,
     "title": string,
     "id": number,
-    "author":{
+    "author": {
         "name": string
-    }  
+    }
 }
 
-export const useBlog =({ id }: {id:string}) => {
-    const [loading, setLoading] = useState(true);
-    const [blog, setBlog] = useState<Blog>();
+// Helper function for authorization headers
+const getAuthHeaders = () => ({
+    Authorization: `Bearer ${localStorage.getItem("token")}`,
+});
 
-    useEffect(() => {
-        axios.get(`${BACKEND_URL}/api/v1/post/${id}`, {
-            headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        })
-        .then((response) => {
-            setBlog(response.data.post);
-            setLoading(false);
-        });
-    }, [id]);
-    
+export const useBlog = ({ id }: { id: string }) => {
+    const {
+        data: blog,
+        isLoading: loading,
+        error,
+    } = useQuery({
+        queryKey: ["blog", id],
+        queryFn: async () => {
+            const response = await axios.get(
+                `${BACKEND_URL}/api/v1/post/${id}`,
+                {
+                    headers: getAuthHeaders(),
+                }
+            );
+            return response.data.post as Blog;
+        },
+        enabled: !!id, // Only run the query if id exists
+    });
+
     return {
         loading,
-        blog
-    }
-} 
+        blog,
+        error,
+    };
+};
 
-
+// Hook to fetch all blogs
 export const useBlogs = () => {
-    const [loading, setLoading] = useState(true);
-    const [blogs, setBlogs] = useState<Blog[]>([]);
+    const {
+        data: blogs = [],
+        isLoading: loading,
+        error,
+    } = useQuery({
+        queryKey: ["blogs"],
+        queryFn: async () => {
+            const response = await axios.get(
+                `${BACKEND_URL}/api/v1/post/bulk`,
+                {
+                    headers: getAuthHeaders(),
+                }
+            );
+            return response.data.posts as Blog[];
+        },
+    });
 
-    useEffect(() => {
-        axios.get(`${BACKEND_URL}/api/v1/post/bulk`, {
-            headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`
-            }
-        })
-        .then((response) => {
-            setBlogs(response.data.posts);
-            setLoading(false);
-        });
-    }, []);
-    
     return {
         loading,
-        blogs
-    }
-}
+        blogs,
+        error,
+    };
+};
