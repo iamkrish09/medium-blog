@@ -136,7 +136,7 @@ postRouter.get('/bulk', async (c) => {
             title: true,
             id: true,
             author: {
-                select:{
+                select: {
                     name: true
                 }
             }
@@ -147,6 +147,42 @@ postRouter.get('/bulk', async (c) => {
         posts
     })
 })
+
+postRouter.get('/my-blogs', async (c) => {
+    const authorId = c.get("userId");
+
+    const prisma = new PrismaClient({
+        accelerateUrl: c.env.DATABASE_URL,
+    }).$extends(withAccelerate());
+
+    try {
+        const posts = await prisma.post.findMany({
+            where: {
+                authorId: authorId
+            },
+            select: {
+                content: true,
+                title: true,
+                id: true,
+                author: {
+                    select: {
+                        name: true
+                    }
+                }
+            }
+        });
+
+        return c.json({
+            posts
+        });
+    } catch (e) {
+        c.status(411);
+        return c.json({
+            message: "error occurred while fetching my blogs"
+        });
+    }
+})
+
 
 
 postRouter.get('/:id', async (c) => {
@@ -163,11 +199,11 @@ postRouter.get('/:id', async (c) => {
                 id: id
             },
             select: {
-                id:true,
+                id: true,
                 content: true,
                 title: true,
                 author: {
-                    select:{
+                    select: {
                         name: true
                     }
                 }
