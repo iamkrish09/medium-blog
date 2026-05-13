@@ -15,6 +15,12 @@ export const Appbar = () => {
 
       <div className="flex items-center gap-4">
         <Link
+          to="/my-blogs"
+          className="text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          My Blogs
+        </Link>
+        <Link
           to="/publish"
           className="inline-flex items-center rounded-full bg-green-800 px-4 py-2.5 text-sm font-medium text-white"
         >

@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { BACKEND_URL } from "../config";
 
@@ -6,7 +6,7 @@ import { BACKEND_URL } from "../config";
 export interface Blog {
     "content": string,
     "title": string,
-    "id": number,
+    "id": string,
     "author": {
         "name": string
     }
@@ -73,4 +73,50 @@ export const useBlogs = () => {
         blogs,
         error,
     };
+};
+
+// Hook to fetch my blogs
+export const useMyBlogs = () => {
+    const {
+        data: blogs = [],
+        isLoading: loading,
+        error,
+    } = useQuery({
+        queryKey: ["my-blogs"],
+        queryFn: async () => {
+            const response = await axios.get(
+                `${BACKEND_URL}/api/v1/post/my-blogs`,
+                {
+                    headers: getAuthHeaders(),
+                }
+            );
+            return response.data.posts as Blog[];
+        },
+    });
+
+    return {
+        loading,
+        blogs,
+        error,
+    };
+};
+
+export const useDeleteBlog = () => {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (id: string | number) => {
+            const response = await axios.delete(
+                `${BACKEND_URL}/api/v1/post/${id}`,
+                {
+                    headers: getAuthHeaders(),
+                }
+            );
+            return response.data;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["blogs"] });
+            queryClient.invalidateQueries({ queryKey: ["my-blogs"] });
+        },
+    });
 };

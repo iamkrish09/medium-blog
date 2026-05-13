@@ -3,6 +3,8 @@ import { Signup } from './pages/Signup'
 import { Signin } from './pages/Signin'
 import { Blog } from './pages/Blog'
 import { Blogs } from './pages/Blogs'
+import { MyBlogs } from './pages/MyBlogs'
+import { EditBlog } from './pages/EditBlog'
 import { Publish } from './components/Publish'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
@@ -18,7 +20,9 @@ function App() {
           <Route element={<ProtectedRoute />}>
             <Route path="/" element={<Blogs />} />
             <Route path="/blog/:id" element={<Blog />} />
+            <Route path="/edit/:id" element={<EditBlog />} />
             <Route path="/blogs" element={<Blogs />} />
+            <Route path="/my-blogs" element={<MyBlogs />} />
             <Route path="/publish" element={<Publish />} />
           </Route>
         </Routes>

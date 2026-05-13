@@ -9,13 +9,13 @@ export const MyBlogs = () => {
     const deleteBlogMutation = useDeleteBlog();
     const navigate = useNavigate();
 
-    const handleEdit = (id: number) => {
+    const handleEdit = (id: string) => {
         // Since there is no edit page yet, we can navigate to an edit route or publish route with state
         // For now, let's navigate to a placeholder or publish page
         navigate(`/edit/${id}`);
     };
 
-    const handleDelete = (id: number) => {
+    const handleDelete = (id: string) => {
         if (window.confirm("Are you sure you want to delete this blog?")) {
             deleteBlogMutation.mutate(id);
         }
