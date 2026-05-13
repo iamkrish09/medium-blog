@@ -5,7 +5,10 @@ interface BlogCardProps {
     title:string;
     content:string;
     publishedDate:string;
-    id:number;
+    id:string;
+    showActions?: boolean;
+    onEdit?: (id: string) => void;
+    onDelete?: (id: string) => void;
 }
 
 export const BlogCard = ({
@@ -13,7 +16,10 @@ export const BlogCard = ({
     title,
     content,
     publishedDate,
-    id
+    id,
+    showActions,
+    onEdit,
+    onDelete
 }:BlogCardProps) => {
     return <Link to={`/blog/${id}`}>
       <div className="p-4 border-b border-slate-200 pb-4 max-w-screen-lg cursor-pointer">
@@ -40,6 +46,30 @@ export const BlogCard = ({
         <div className="font-thin text-slate-500 text-sm pt-2">
             {`${Math.ceil(content.length /100)} minutes(s) read`}
         </div>
+        {showActions && (
+            <div className="flex gap-4 pt-4 mt-4 border-t border-slate-100">
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (onEdit) onEdit(id);
+                    }}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+                >
+                    Edit
+                </button>
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (onDelete) onDelete(id);
+                    }}
+                    className="text-sm text-red-600 hover:text-red-800 font-medium"
+                >
+                    Delete
+                </button>
+            </div>
+        )}
     </div>
     </Link>
 }

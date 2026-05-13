@@ -12,6 +12,7 @@
   "dependencies": {
     "@krishna1505/medium-common": "^1.0.0",
     "@tailwindcss/vite": "^4.2.4",
+    "@tanstack/react-query": "^5.100.10",
     "axios": "^1.15.2",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
