@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { withAccelerate } from '@prisma/extension-accelerate'
 import { PrismaClient } from '../generated/prisma/edge';
-import { verify } from "hono/jwt";
 import { createPostInput, updatePostInput } from "@krishna1505/medium-common";
+import { authMiddleware } from '../middlewares/auth';
 
 export const postRouter = new Hono<{
     Bindings: {
@@ -14,32 +14,8 @@ export const postRouter = new Hono<{
     }
 }>();
 
-// This is the middleware to decode the token 
-postRouter.use("/*", async (c, next) => {
-    //extract the user id
-    //pass it down to the route handler
-    const authHeader = c.req.header("authorization") || "";
-
-    try {
-        //Bearer Token
-        const token = authHeader.split(" ")[1]
-
-        const response = await verify(token, c.env.JWT_SECRET, "HS256")
-        // const user = await verify(authHeader, c.env.JWT_SECRET);
-        if (response.id) {
-            c.set('userId', response.id as string);
-            await next()
-        }
-        else {
-            c.status(403)
-            return c.json({ error: "unauthorized" })
-        }
-    } catch (e) {
-        c.status(403)
-        return c.json({ error: "unauthorized" })
-    }
-}
-)
+// Cookie-based auth middleware (shared with user router)
+postRouter.use("/*", authMiddleware);
 
 
 

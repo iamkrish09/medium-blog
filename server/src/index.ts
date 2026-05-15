@@ -20,7 +20,7 @@ app.use(
       'https://scryb.krishnapramanik.in',
     ],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization'],
+    allowHeaders: ['Content-Type'],
     credentials: true,
   })
 )
