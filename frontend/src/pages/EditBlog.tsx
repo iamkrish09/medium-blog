@@ -1,7 +1,6 @@
 import { useState, useEffect, type ChangeEvent } from "react";
-import axios from "axios";
+import { apiClient } from "../lib/axios";
 import { Appbar } from "../components/Appbar"
-import { BACKEND_URL } from "../config";
 import { useNavigate, useParams } from "react-router-dom";
 import { useBlog } from "../hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -61,21 +60,14 @@ export const EditBlog = () => {
                     <div className="flex justify-between">
                         <button
                             onClick={async () => {
-                                const token = localStorage.getItem("token");
-                                if (!token) {
-                                    navigate("/signin");
-                                    return;
-                                }
+                                // Auth is guaranteed by ProtectedRoute — cookie is sent
+                                // automatically by apiClient (withCredentials: true).
                                 setLoading(true);
                                 try {
-                                    await axios.put(`${BACKEND_URL}/api/v1/post`, {
+                                    await apiClient.put('/api/v1/post', {
                                         id,
                                         title,
                                         content: description
-                                    }, {
-                                        headers: {
-                                            Authorization: `Bearer ${token}`
-                                        }
                                     });
                                     // Invalidate caches
                                     queryClient.invalidateQueries({ queryKey: ["blogs"] });

@@ -1,8 +1,7 @@
 import { Link, useNavigate } from "react-router-dom"
 import { useState } from "react";
 import type{ SignupInput } from "@krishna1505/medium-common";
-import axios from 'axios'
-import { BACKEND_URL } from "../config"
+import { apiClient } from "../lib/axios";
 
 export const Auth = ({type}: {type: "signup" | "signin"}) => {
 
@@ -15,9 +14,12 @@ export const Auth = ({type}: {type: "signup" | "signin"}) => {
 
     async function sendRequest(){
         try {
-            const response = await axios.post(`${BACKEND_URL}/api/v1/user/${type === "signup" ? "signup" : "signin"}`, postInputs); // for now zod will ignore the extra name field but later i will make another seperate compoennt for both sing up and sign in currently i am using this logic 
-            const jwt = response.data.jwt;
-            localStorage.setItem("token", jwt);
+            // Server sets the HTTP-only cookie automatically on success.
+            // No JWT is returned in the response body — nothing to store.
+            await apiClient.post(
+                `/api/v1/user/${type === "signup" ? "signup" : "signin"}`,
+                postInputs
+            );
             navigate("/blogs")
         } catch (error) {
             //alert the user here that the request failed

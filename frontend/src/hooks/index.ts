@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
-import { BACKEND_URL } from "../config";
+import { apiClient } from "../lib/axios";
 
 
 export interface Blog {
@@ -12,17 +11,6 @@ export interface Blog {
     }
 }
 
-// Helper function for authorization headers
-const getAuthHeaders = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-        throw new Error("Authentication token not found");
-    }
-    return {
-        Authorization: `Bearer ${token}`,
-    };
-};
-
 export const useBlog = ({ id }: { id: string }) => {
     const {
         data: blog,
@@ -31,12 +19,7 @@ export const useBlog = ({ id }: { id: string }) => {
     } = useQuery({
         queryKey: ["blog", id],
         queryFn: async () => {
-            const response = await axios.get(
-                `${BACKEND_URL}/api/v1/post/${id}`,
-                {
-                    headers: getAuthHeaders(),
-                }
-            );
+            const response = await apiClient.get(`/api/v1/post/${id}`);
             return response.data.post as Blog;
         },
         enabled: !!id, // Only run the query if id exists
@@ -58,12 +41,7 @@ export const useBlogs = () => {
     } = useQuery({
         queryKey: ["blogs"],
         queryFn: async () => {
-            const response = await axios.get(
-                `${BACKEND_URL}/api/v1/post/bulk`,
-                {
-                    headers: getAuthHeaders(),
-                }
-            );
+            const response = await apiClient.get(`/api/v1/post/bulk`);
             return response.data.posts as Blog[];
         },
     });
@@ -84,12 +62,7 @@ export const useMyBlogs = () => {
     } = useQuery({
         queryKey: ["my-blogs"],
         queryFn: async () => {
-            const response = await axios.get(
-                `${BACKEND_URL}/api/v1/post/my-blogs`,
-                {
-                    headers: getAuthHeaders(),
-                }
-            );
+            const response = await apiClient.get(`/api/v1/post/my-blogs`);
             return response.data.posts as Blog[];
         },
     });
@@ -106,12 +79,7 @@ export const useDeleteBlog = () => {
 
     return useMutation({
         mutationFn: async (id: string | number) => {
-            const response = await axios.delete(
-                `${BACKEND_URL}/api/v1/post/${id}`,
-                {
-                    headers: getAuthHeaders(),
-                }
-            );
+            const response = await apiClient.delete(`/api/v1/post/${id}`);
             return response.data;
         },
         onSuccess: () => {
