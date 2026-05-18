@@ -4,7 +4,7 @@ import { PrismaClient } from '../generated/prisma/edge';
 import { sign, verify } from 'hono/jwt';
 import { signupInput, signinInput } from "@krishna1505/medium-common";
 import { setCookie, deleteCookie, getCookie } from 'hono/cookie';
-import { COOKIE_NAME, getCookieOptions } from '../utils/cookies';
+import { COOKIE_NAME, getCookieOptions, SESSION_TTL_SECONDS } from '../utils/cookies';
 import { hashPassword, verifyPassword } from '../utils/password';
 
 const JWT_ALGORITHM = 'HS256' as const;
@@ -50,7 +50,9 @@ userRouter.post('/signup', async (c) => {
       }
     })
 
-    const token = await sign({ id: user.id }, c.env.JWT_SECRET, JWT_ALGORITHM)
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + SESSION_TTL_SECONDS;
+    const token = await sign({ id: user.id, iat, exp }, c.env.JWT_SECRET, JWT_ALGORITHM)
 
     // Set HTTP-only cookie for the JWT token
     setCookie(
@@ -116,9 +118,10 @@ userRouter.post('/signin', async (c) => {
       throw new Error("JWT_SECRET is undefined");
     }
 
-    // const jwt = await sign({ id: user.id }, c.env.JWT_SECRET, JWT_ALGORITHM);
+    const iat = Math.floor(Date.now() / 1000);
+    const exp = iat + SESSION_TTL_SECONDS;
     const token = await sign(
-      { id: user.id },
+      { id: user.id, iat, exp },
       c.env.JWT_SECRET,
       JWT_ALGORITHM
     );
