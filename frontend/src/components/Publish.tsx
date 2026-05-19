@@ -1,6 +1,5 @@
-import axios from "axios";
+import { apiClient } from "../lib/axios";
 import { Appbar } from "../components/Appbar"
-import { BACKEND_URL } from "../config";
 import { useState, type ChangeEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -38,20 +37,14 @@ export const Publish = () => {
                     <div className="flex justify-between">
                         <button
                             onClick={async () => {
-                                const token = localStorage.getItem("token");
-                                if (!token) {
-                                    navigate("/signin");
-                                    return;
-                                }
+                                // Auth is guaranteed by ProtectedRoute — no need to
+                                // re-check localStorage here. The cookie is sent
+                                // automatically by apiClient (withCredentials: true).
                                 setLoading(true);
                                 try {
-                                    const response = await axios.post(`${BACKEND_URL}/api/v1/post`, {
+                                    const response = await apiClient.post('/api/v1/post', {
                                         title,
                                         content: description
-                                    }, {
-                                        headers: {
-                                            Authorization: `Bearer ${token}`
-                                        }
                                     });
                                     navigate(`/blog/${response.data.id}`);
                                 } catch (error) {
