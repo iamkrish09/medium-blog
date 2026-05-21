@@ -61,6 +61,7 @@ postRouter.post('/', async (c) => {
 })
 
 postRouter.put('/', async (c) => {
+    const authorId = c.get("userId");
     //Get the body which the user will send me
     const body = await c.req.json();
 
@@ -76,19 +77,29 @@ postRouter.put('/', async (c) => {
     }).$extends(withAccelerate());
 
     try {
-        const post = await prisma.post.update({
+        // const post = await prisma.post.update({
+        //     where: {
+        //         id: body.id
+        //     },
+        const result = await prisma.post.updateMany({
             where: {
-                id: body.id
+                id: body.id,
+                authorId: authorId
             },
             data: {
                 title: body.title,
                 content: body.content,
             }
-        })
+        });
+
+        if (result.count === 0) {
+            return c.json({ message: "Post not found" }, 404);
+        }
 
         c.status(200);
         return c.json({
-            id: post.id,
+            // id: post.id,
+            id: body.id,
             message: 'Post updated successfully!',
         })
 
@@ -203,6 +214,7 @@ postRouter.get('/:id', async (c) => {
 postRouter.delete('/:id', async (c) => {
     try {
         const id = c.req.param("id"); //post id
+        const authorId = c.get("userId");
 
         // Validate ID
         if (!id) {
@@ -215,7 +227,8 @@ postRouter.delete('/:id', async (c) => {
 
         // Use deleteMany to avoid crashing if id doesn't exist
         const result = await prisma.post.deleteMany({
-            where: { id }
+            // where: { id }
+            where: { id, authorId }
         });
 
         if (result.count === 0) {

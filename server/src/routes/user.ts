@@ -28,7 +28,7 @@ userRouter.post('/signup', async (c) => {
     accelerateUrl: c.env.DATABASE_URL,
   }).$extends(withAccelerate());
 
-  const isProduction = c.env.NODE_ENV === 'production';
+  const isProduction = c.env.NODE_ENV === 'production' || (!c.req.url.startsWith('http://localhost') && !c.req.url.startsWith('http://127.0.0.1'));
   //Get the body which the user will send me
   const body = await c.req.json();
   const { success } = signupInput.safeParse(body)
@@ -126,7 +126,7 @@ userRouter.post('/signin', async (c) => {
       JWT_ALGORITHM
     );
 
-    const isProduction = c.env.NODE_ENV === 'production';
+    const isProduction = c.env.NODE_ENV === 'production' || (!c.req.url.startsWith('http://localhost') && !c.req.url.startsWith('http://127.0.0.1'));
 
     setCookie(
       c,
@@ -149,8 +149,13 @@ userRouter.post('/signin', async (c) => {
 // LOGOUT
 // =========================
 userRouter.post('/logout', async (c) => {
+  const isProduction = c.env.NODE_ENV === 'production' || (!c.req.url.startsWith('http://localhost') && !c.req.url.startsWith('http://127.0.0.1'));
+  const options = getCookieOptions(isProduction);
+
   deleteCookie(c, COOKIE_NAME, {
-    path: '/',
+    path: options.path,
+    secure: options.secure,
+    sameSite: options.sameSite,
   });
 
   return c.json({
